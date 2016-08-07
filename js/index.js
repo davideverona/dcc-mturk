@@ -32,9 +32,8 @@ window.onload = function() {
 
   //Event handlers
   document.getElementById('myCanvas').onmousedown = function(e){
-    console.log(e)
-    var x = Math.round((e.clientX-e.target.offsetLeft)/(zoom*scale))
-    var y = Math.round((e.clientY-e.target.offsetTop)/(zoom*scale))
+    var x = Math.round((e.pageX-e.target.offsetLeft)/(zoom*scale))
+    var y = Math.round((e.pageY-e.target.offsetTop)/(zoom*scale))
     dots.push({x: x,y: y})
     redraw()
     checkAssignmetId()
