@@ -29,9 +29,10 @@ window.onload = function() {
     imgUrl = getParameterByName("url")
     loadImage(imgUrl == undefined ? default_img_url : imgUrl)
   }
-  
+
   //Event handlers
   document.getElementById('myCanvas').onmousedown = function(e){
+    console.log(e)
     var x = Math.round((e.clientX-e.target.offsetLeft)/(zoom*scale))
     var y = Math.round((e.clientY-e.target.offsetTop)/(zoom*scale))
     dots.push({x: x,y: y})
@@ -43,14 +44,14 @@ window.onload = function() {
   document.getElementById('btn-zoom-out').onclick = zoomOut
   document.getElementById('btn-undo').onclick = undo
   document.getElementById('btn-submit').onclick = submit
-  
+
   //key shortcuts
   window.onkeypress=function(e){
     if(e.key=="=") zoomIn()
     else if(e.key=="-") zoomOut()
     else if(e.key=="d") toggleDebug()
   }
-  
+
   //loading...
   var canvas = document.getElementById("myCanvas")
   var ctx = canvas.getContext("2d")
