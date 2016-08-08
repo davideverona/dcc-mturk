@@ -1,8 +1,9 @@
-const dotSize = 3
+const dotSize = 4
 const dotColor = "#00ff00"
 const action_url = "https://www.mturk.com/mturk/externalSubmit"
 const sandbox_action_url = "https://workersandbox.mturk.com/mturk/externalSubmit"
-const default_img_url = "https://www.dropbox.com/s/fi0tyk3hxcwcykh/1.jpg?dl=1"
+const example_img_url = "https://www.dropbox.com/s/28f7wj1xlv9yn9l/46.jpg?dl=1"
+//const example_dots_data = "https://www.dropbox.com/s/2aplbsnkne7ocqj/46.json?dl=1"
 
 var imageObj = new Image()
 var zoom = 1
@@ -11,6 +12,7 @@ var sandbox = document.referrer.indexOf('workersandbox') != -1
 var dots = []
 var assignmentId = undefined
 var imgUrl = undefined
+//var exampleMode = false
 
 function getParameterByName(name, url) {
     if (!url) url = window.location.href
@@ -27,14 +29,25 @@ window.onload = function() {
   if (assignmentId != null && window.location.href.startsWith("http://localhost:9990/")) getLocalData() //review mode
   else {
     imgUrl = getParameterByName("url")
-    loadImage(imgUrl == undefined ? default_img_url : imgUrl)
+    loadImage(imgUrl == undefined ? example_img_url : imgUrl)
   }
 
   //Event handlers
+  //ononcontextmenu
+  document.getElementById('myCanvas').oncontextmenu = function(e){ return false; }
+  //onmousedown
   document.getElementById('myCanvas').onmousedown = function(e){
     var x = Math.round((e.pageX-e.target.offsetLeft)/(zoom*scale))
     var y = Math.round((e.pageY-e.target.offsetTop)/(zoom*scale))
-    dots.push({x: x,y: y})
+    if (e.button == 2) { //secondary click
+      //delete
+      var d = 5 //delta
+      for (i in dots)
+        if(dots[i].x > x-d && dots[i].x < x+d && dots[i].y > y-d && dots[i].y < y+d) dots.splice(i, 1)
+    } else {
+      //add
+      dots.push({x: x,y: y})
+    }
     redraw()
     checkAssignmetId()
   }
@@ -43,6 +56,8 @@ window.onload = function() {
   document.getElementById('btn-zoom-out').onclick = zoomOut
   document.getElementById('btn-undo').onclick = undo
   document.getElementById('btn-submit').onclick = submit
+
+  //document.getElementById('example').onclick = toggleExample
 
   //key shortcuts
   window.onkeypress=function(e){
@@ -85,6 +100,7 @@ function redraw() {
   canvas.width = (window.innerWidth - 30) * zoom
   scale = (canvas.width/zoom) / imageObj.width
   canvas.height = imageObj.height * scale * zoom
+
   ctx.drawImage(imageObj, 0, 0, width=canvas.width, height=canvas.height)
   for(i in dots) {
     drawDot(ctx, dots[i].x, dots[i].y)
@@ -109,7 +125,7 @@ function zoomOut() {
 
 function drawDot(ctx, x, y) {
   ctx.beginPath()
-  ctx.arc(x*scale*zoom, y*scale*zoom, dotSize*scale*zoom, 0, 2*Math.PI)
+  ctx.arc(x*scale*zoom, y*scale*zoom, dotSize*zoom, 0, 2*Math.PI)
   ctx.fillStyle = dotColor
   ctx.fill()
 }
@@ -164,3 +180,13 @@ function getLocalData() {
 function toggleDebug() {
   document.getElementById('debug').style = ""
 }
+
+/*function toggleExample() {
+  exampleMode = !exampleMode
+  if (exampleMode) {
+    document.getElementById('example').innerHTML = "example"
+  } else {
+    document.getElementById('example').innerHTML = "hide example"
+  }
+  redraw()
+}*/
