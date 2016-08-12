@@ -1,18 +1,16 @@
 const dotSize = 4
 const dotColor = "#00ff00"
-const action_url = "https://www.mturk.com/mturk/externalSubmit"
-const sandbox_action_url = "https://workersandbox.mturk.com/mturk/externalSubmit"
-const example_img_url = "https://www.dropbox.com/s/28f7wj1xlv9yn9l/46.jpg?dl=1"
-//const example_dots_data = "https://www.dropbox.com/s/2aplbsnkne7ocqj/46.json?dl=1"
 
-var imageObj = new Image()
+const example_img_url = "https://www.dropbox.com/s/28f7wj1xlv9yn9l/46.jpg?dl=1"
+
+var actionUrl = undefined
+var imageObj = undefined
 var zoom = 1
 var scale = 1
 var sandbox = document.referrer.indexOf('workersandbox') != -1
 var dots = []
 var assignmentId = undefined
 var imgUrl = undefined
-//var exampleMode = false
 
 function getParameterByName(name, url) {
     if (!url) url = window.location.href
@@ -25,16 +23,21 @@ function getParameterByName(name, url) {
 }
 
 window.onload = function() {
-  if (assignmentId == null) assignmentId = getParameterByName("assignmentId")
-  if (assignmentId != null && window.location.href.startsWith("http://localhost:9990/")) getLocalData() //review mode
-  else {
-    imgUrl = getParameterByName("url")
-    loadImage(imgUrl == undefined ? example_img_url : imgUrl)
-  }
+  //Parameters
+  assignmentId = getParameterByName("assignmentId")
+  actionUrl = getParameterByName('sendTo')
+  imgUrl = getParameterByName("url")
+  loadImage(imgUrl == undefined ? example_img_url : imgUrl)
 
   //Event handlers
+  //onresize
+  window.onresize = function() {
+    redraw()
+  }
+
   //ononcontextmenu
   document.getElementById('myCanvas').oncontextmenu = function(e){ return false; }
+
   //onmousedown
   document.getElementById('myCanvas').onmousedown = function(e){
     var x = Math.round((e.pageX-e.target.offsetLeft)/(zoom*scale))
@@ -67,41 +70,38 @@ window.onload = function() {
   }
 
   //loading...
-  var canvas = document.getElementById("myCanvas")
-  var ctx = canvas.getContext("2d")
-  ctx.font = "30px Arial"
-  ctx.fillStyle = "grey"
-  ctx.textAlign = "center"
-  ctx.fillText("Loading...", canvas.width/2, canvas.height/2)
+  loading()
 
   //debug
   document.getElementById('debug_assignment_id').innerHTML = assignmentId
-}
-
-window.onresize = function() {
-  redraw()
 }
 
 function resizeCanvas() {
     var canvas = document.getElementById("myCanvas")
     canvas.width = window.innerWidth
     canvas.height = window.innerWidth
-
 }
 
 function loadImage(url) {
+  imageObj = new Image()
   imageObj.src = url
-  imageObj.onload = redraw
+  imageObj.onload = function () {
+    if (imageObj.width <= 256) zoom = 4
+    else zoom = 1
+    redraw()
+  }
 }
 
 function redraw() {
+  if (imageObj == undefined) return
+
   var canvas = document.getElementById('myCanvas')
   var ctx = canvas.getContext('2d')
   canvas.width = (window.innerWidth - 30) * zoom
   scale = (canvas.width/zoom) / imageObj.width
   canvas.height = imageObj.height * scale * zoom
 
-  ctx.drawImage(imageObj, 0, 0, width=canvas.width, height=canvas.height)
+  if (imageObj != undefined) ctx.drawImage(imageObj, 0, 0, width=canvas.width, height=canvas.height)
   for(i in dots) {
     drawDot(ctx, dots[i].x, dots[i].y)
   }
@@ -142,13 +142,12 @@ function submit() {
     retrun
   }
   document.getElementById('assignmentId').value = assignmentId
-  document.getElementById('dots_data').value = getParameterByName('assignmentId')
   document.getElementById('dots_count').value = dots.length.toString()
   document.getElementById('dots_data').value = JSON.stringify(dots)
   document.getElementById('mt_comments').value = document.getElementById('mt_comments_textbox').value
 
   var form = document.getElementById("mturk_form")
-  form.action = sandbox ? sandbox_action_url : action_url
+  form.action = actionUrl
   form.submit()
 }
 
@@ -160,25 +159,29 @@ function checkAssignmetId() {
   return true
 }
 
-function getLocalData() {
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'http://localhost:9990/rest/review/' + assignmentId);
-  xhr.onload = function() {
-      if (xhr.status === 200) {
-          var resp = JSON.parse(xhr.responseText)
-          dots = JSON.parse(resp["Answer.dots_data"])
-          imgUrl = resp["annotation"]
-          loadImage(imgUrl)
-      }
-      else {
-          alert('Request failed.  Returned status of ' + xhr.status);
-      }
-  }
-  xhr.send();
-}
-
 function toggleDebug() {
   document.getElementById('debug').style = ""
+}
+
+function review(row) {
+  loading()
+
+  assignmentId = row["assignmentid"]
+  dots = JSON.parse(row["Answer.dots_data"])
+  imgUrl = row["annotation"]
+  document.getElementById("mt_comments").value = row["mt_comments"]
+  toggleDebug()
+  loadImage(imgUrl)
+}
+
+function loading() {
+  var canvas = document.getElementById("myCanvas")
+  var ctx = canvas.getContext("2d")
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.font = "30px Arial"
+  ctx.fillStyle = "grey"
+  ctx.textAlign = "center"
+  ctx.fillText("Loading...", canvas.width/2, canvas.height/2)
 }
 
 /*function toggleExample() {
