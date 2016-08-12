@@ -1,4 +1,4 @@
-const dotSize = 4
+const dotSize = 6
 const dotColor = "#00ff00"
 
 const example_img_url = "https://www.dropbox.com/s/28f7wj1xlv9yn9l/46.jpg?dl=1"
@@ -85,11 +85,7 @@ function resizeCanvas() {
 function loadImage(url) {
   imageObj = new Image()
   imageObj.src = url
-  imageObj.onload = function () {
-    if (imageObj.width <= 256) zoom = 4
-    else zoom = 1
-    redraw()
-  }
+  imageObj.onload = redraw
 }
 
 function redraw() {
