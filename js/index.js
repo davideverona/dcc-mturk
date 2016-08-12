@@ -25,7 +25,7 @@ function getParameterByName(name, url) {
 window.onload = function() {
   //Parameters
   assignmentId = getParameterByName("assignmentId")
-  actionUrl = getParameterByName("turkSubmitTo")
+  actionUrl = getParameterByName("turkSubmitTo") +  "/mturk/externalSubmit"
   imgUrl = getParameterByName("url")
   loadImage(imgUrl == undefined ? example_img_url : imgUrl)
 
