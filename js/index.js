@@ -1,4 +1,4 @@
-const dotSize = 6
+const dotSize = 10
 const dotColor = "#00ff00"
 
 const example_img_url = "https://www.dropbox.com/s/28f7wj1xlv9yn9l/46.jpg?dl=1"
@@ -25,7 +25,7 @@ function getParameterByName(name, url) {
 window.onload = function() {
   //Parameters
   assignmentId = getParameterByName("assignmentId")
-  actionUrl = getParameterByName('sendTo')
+  actionUrl = getParameterByName("turkSubmitTo")
   imgUrl = getParameterByName("url")
   loadImage(imgUrl == undefined ? example_img_url : imgUrl)
 
