@@ -5,7 +5,7 @@ const example_img_url = "https://www.dropbox.com/s/28f7wj1xlv9yn9l/46.jpg?dl=1"
 
 var actionUrl = undefined
 var imageObj = undefined
-var zoom = 1
+var zoom = 0.5
 var scale = 1
 var sandbox = document.referrer.indexOf('workersandbox') != -1
 var dots = []
