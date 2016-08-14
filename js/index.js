@@ -133,10 +133,10 @@ function undo() {
 
 function submit() {
   if(!checkAssignmetId()) return
-  if(dots.length <= 0) {
+  /*if(dots.length <= 0) {
     alert("Dense crowd counting: Please click on ALL people heads before submit!")
     retrun
-  }
+  }*/
   document.getElementById('assignmentId').value = assignmentId
   document.getElementById('dots_count').value = dots.length.toString()
   document.getElementById('dots_data').value = JSON.stringify(dots)
@@ -165,7 +165,7 @@ function review(row) {
   assignmentId = row["assignmentid"]
   dots = JSON.parse(row["Answer.dots_data"])
   imgUrl = row["annotation"]
-  document.getElementById("mt_comments").value = row["mt_comments"]
+  document.getElementById("mt_comments_textbox").value = row["Answer.mt_comments"]
   toggleDebug()
   loadImage(imgUrl)
 }
